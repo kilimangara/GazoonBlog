@@ -1,0 +1,18 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.example.asus.test_rest_client.PostAddActivity">
+    <item
+        android:id="@+id/action_add"
+        android:orderInCategory="100"
+        android:title="Send"
+        android:icon="@drawable/ic_send_white_24dp"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/action_add_photo"
+        android:orderInCategory="99"
+        android:title="Add"
+        android:icon="@drawable/ic_add_a_photo_white_24dp"
+        app:showAsAction="ifRoom"/>
+</menu>
+

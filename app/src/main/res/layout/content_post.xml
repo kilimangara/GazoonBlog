@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v4.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context="com.example.asus.test_rest_client.PostActivity">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:textSize="12sp"
+            android:transitionName="@string/transition_name_author"
+        android:text="Zlain"
+        android:id="@+id/tvForName"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:textSize="12sp"
+            android:transitionName="@string/transition_name_date"
+            android:text="Today 15:00"
+            android:id="@+id/tvForDate"/>
+        <TextView
+            android:id="@+id/tvPostsTitle"
+            android:text="Allahu akbar"
+            android:transitionName="@string/transition_name_title"
+            android:layout_centerHorizontal="true"
+           android:layout_below="@+id/tvForName"
+            android:textSize="30sp"
+            android:textStyle="bold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <ImageView
+            android:layout_centerHorizontal="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:scaleType="centerCrop"
+            android:maxHeight="200dp"
+            android:id="@+id/post_image"
+            android:visibility="visible"
+            android:layout_below="@+id/tvPostsTitle"
+            />
+
+        <TextView
+            android:id="@+id/tvPostsText"
+            android:layout_below="@+id/post_image"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="50dp"
+            android:text="@string/large_text" />
+    </RelativeLayout>
+</android.support.v4.widget.NestedScrollView>
+
