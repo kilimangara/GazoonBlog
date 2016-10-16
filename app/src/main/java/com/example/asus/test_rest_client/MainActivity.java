@@ -18,6 +18,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -32,6 +33,7 @@ import com.example.asus.test_rest_client.fragments.PostsFragment;
 import com.example.asus.test_rest_client.huyznaet.PreferenceHelper;
 import com.example.asus.test_rest_client.loaderManager.RequestLoader;
 import com.example.asus.test_rest_client.model.User;
+import com.example.asus.test_rest_client.retrofitRxSingleTon.ApiFactory;
 import com.example.asus.test_rest_client.serializers.UserSettings;
 
 
@@ -61,13 +63,14 @@ public class MainActivity extends AppCompatActivity
     public static final int REQUEST_PATCH = 1;
     public static final int RESULT_ADDED= 201;
     public static final int RESULT_PATCHED= 202;
-    public static final int RESULT_ADDED_FRON_NOTES=203;
-    public  static PreferenceHelper preferenceHelper;
+   // public static final int RESULT_ADDED_FRON_NOTES=203;
+    public static PreferenceHelper preferenceHelper;
     public static User user;
     public static ImageLoader imageLoader;
     public static File cacheDir;
     public static Gson gson;
     public static Retrofit retrofit;
+    public static ApiFactory apiFactory;
 
     private static String[] PERMISSIONS_STORAGE = {
             Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -82,6 +85,7 @@ public class MainActivity extends AppCompatActivity
     public ViewPager viewPager;
     public TextView tvEmail;
     public TextView tvName;
+    public SearchView searchView;
     public FragmentManager fragmentManager;
     public CircleImageView circleImageView;
     @Override
@@ -93,6 +97,8 @@ public class MainActivity extends AppCompatActivity
         Log.d("mytags", "OnCreateMain");
         user = null;
         gson = new GsonBuilder().setPrettyPrinting().create();
+        apiFactory = ApiFactory.getInstance();
+        apiFactory.init();
         retrofit = new Retrofit.Builder().baseUrl(BASE_URL).addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
         fragmentManager = getSupportFragmentManager();
@@ -115,7 +121,6 @@ public class MainActivity extends AppCompatActivity
         imageLoader = ImageLoader.getInstance();
         imageLoader.clearDiskCache();
         imageLoader.clearMemoryCache();
-        Log.d(RequestLoader.MYTAGS, tvEmail+ " " + tvName);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -127,7 +132,6 @@ public class MainActivity extends AppCompatActivity
                 overridePendingTransition(R.anim.activity_down_up_enter, R.anim.activity_down_up_close_enter);
             }
         });
-
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -136,7 +140,7 @@ public class MainActivity extends AppCompatActivity
 
         final NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-
+        searchView = (SearchView) findViewById(R.id.searchView);
         circleImageView  = (CircleImageView) navigationView.getHeaderView(0).findViewById(R.id.imageView);
         tvEmail = (TextView) navigationView.getHeaderView(0).findViewById(R.id.tvForEmail);
         tvName = (TextView) navigationView.getHeaderView(0).findViewById(R.id.tvForName);
@@ -146,13 +150,21 @@ public class MainActivity extends AppCompatActivity
         tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.ic_note_white_24dp));
         tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.ic_group_white_24dp));
         if(preferenceHelper.getBoolean()){
+            Log.d("mytags", "already signed in");
             user = preferenceHelper.getUser();
+            setUI();
             resetUser();
         }
         else {
             Log.d("mytags", "going to splash");
             runSplash();
+
         }
+
+
+    }
+    private void setUI(){
+        Log.d("mytags", "UI Setted");
         ViewPagerAdapter adapter =new ViewPagerAdapter(fragmentManager, 3);
         viewPager = (ViewPager) findViewById(R.id.view_pager);
         viewPager.setAdapter(adapter);
@@ -175,12 +187,21 @@ public class MainActivity extends AppCompatActivity
         });
         postsFragment= (PostsFragment) adapter.getItem(ViewPagerAdapter.POSTS_FRAGMENT);
         notesFragment = (NotesFragment) adapter.getItem(ViewPagerAdapter.NOTES_FRAGMENT);
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                postsFragment.adapter.findPosts(query);
+                return false;
+            }
 
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return false;
+            }
+        });
         if(Build.VERSION.SDK_INT> Build.VERSION_CODES.LOLLIPOP_MR1) {
             requestPermissions(PERMISSIONS_STORAGE, 200);
         }
-
-
     }
 
     @Override
@@ -212,11 +233,12 @@ public class MainActivity extends AppCompatActivity
         Log.d("mytags", "OnStartMain");
     }
 
-
     @Override
     protected void onRestart() {
         super.onRestart();
+        Log.d("mytags", "reseting user");
         resetUser();
+
         imageLoader.clearDiskCache();
         imageLoader.clearMemoryCache();
     }
@@ -325,7 +347,9 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void loadFinished() {
+        Log.d("mytags", "signed");
             resetUser();
+        setUI();
                 new Handler().post(new Runnable() {
                 @Override
                 public void run() {

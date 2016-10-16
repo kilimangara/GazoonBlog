@@ -29,14 +29,20 @@ import de.hdodenhof.circleimageview.CircleImageView;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-
+import retrofit2.Retrofit;
+import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
+import retrofit2.converter.gson.GsonConverterFactory;
+import rx.Scheduler;
+import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 
 public class PostsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     static public List<Post> results;
-    Posts posts;
-    PostsFragment fragment;
-    RestService intf ;
+    private PostsFragment fragment;
+    private RestService intf ;
+    private String query;
     private int page;
     private boolean hasEnded;
     private OnPostsLoadFinished listener;
@@ -71,7 +77,7 @@ public class PostsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         final PostsViewHolder postHolder= (PostsViewHolder) holder;
         View itemView = holder.itemView;
         if(position == getItemCount() -1 && !hasEnded){
-            getPage();
+            getPage(query);
         }
         itemView.setVisibility(View.VISIBLE);
         postHolder.titleView.setText(post.getTitle());
@@ -95,8 +101,43 @@ public class PostsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
 
     }
-    public void getPage(){
-        Call<Posts> callPosts = intf.getPosts(MainActivity.preferenceHelper.getToken(), page*10);
+
+    private void getPage(String query){
+
+
+        MainActivity.apiFactory.getService().getPosts(MainActivity.preferenceHelper.getToken(), query,page*10).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Subscriber<Posts>() {
+                    @Override
+                    public void onCompleted() {
+                        Log.d("mytags", "Completed");
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.d("mytags", e.getMessage());
+                        Log.d("mytags", MainActivity.preferenceHelper.getToken());
+                        Snackbar.make(fragment.v, R.string.snackbar_error, Snackbar.LENGTH_LONG).show();
+                        listener.postsLoad();
+                    }
+
+                    @Override
+                    public void onNext(Posts post) {
+                        Log.d("mytags","OnNext");
+                        if(post.getResults().size()!= 0){
+                            results.addAll(post.getResults());
+                            notifyDataSetChanged();
+                        }
+                        else{
+                            hasEnded = true;
+                        }
+                        listener.postsLoad();
+                    }
+                });
+        page++;
+    }
+    private void getPage(){
+      /*  Call<Posts> callPosts = intf.getPosts(MainActivity.preferenceHelper.getToken(), page*10);
         Log.d("mytags",callPosts.request().toString());
         callPosts.enqueue(new Callback<Posts>() {
             @Override
@@ -120,6 +161,38 @@ public class PostsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             }
 
 
+        });
+        page++;*/
+
+
+        MainActivity.apiFactory.getService().getPosts(MainActivity.preferenceHelper.getToken(), page*10).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Subscriber<Posts>() {
+            @Override
+            public void onCompleted() {
+                Log.d("mytags", "Completed");
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                Log.d("mytags", e.getMessage());
+                Log.d("mytags", MainActivity.preferenceHelper.getToken());
+                Snackbar.make(fragment.v, R.string.snackbar_error, Snackbar.LENGTH_LONG).show();
+                listener.postsLoad();
+            }
+
+            @Override
+            public void onNext(Posts post) {
+                Log.d("mytags","OnNext");
+                if(post.getResults().size()!= 0){
+                    results.addAll(post.getResults());
+                    notifyDataSetChanged();
+                }
+                else{
+                        hasEnded = true;
+                    }
+                listener.postsLoad();
+            }
         });
         page++;
     }
@@ -145,10 +218,18 @@ public class PostsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     public PostsFragment getFragment(){
         return fragment;
     }
+    public void findPosts(String query){
+        page = 0;
+        hasEnded = false;
+        results = new ArrayList<>();
+        this.query =query;
+        getPage(query);
+    }
     public void refreshPage(){
         page = 0;
         hasEnded = false;
         results = new ArrayList<>();
-        getPage();
+        query ="";
+        getPage(query);
     }
 }

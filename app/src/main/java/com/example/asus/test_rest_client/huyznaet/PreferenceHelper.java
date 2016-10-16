@@ -8,12 +8,11 @@ import com.example.asus.test_rest_client.model.User;
 
 
 public class PreferenceHelper {
-    public static final String KEY_FOR_TOKEN ="token";
-    public static final String KEY_FOR_AUTH = "isAuth";
-    public static final String KEY_FOR_USER = "user";
+    private static final String KEY_FOR_TOKEN ="token";
+    private static final String KEY_FOR_AUTH = "isAuth";
+    private static final String KEY_FOR_USER = "user";
     private static PreferenceHelper instance;
 
-    private Context context;
     private SharedPreferences preferences;
 
     private PreferenceHelper(){
@@ -29,8 +28,7 @@ public class PreferenceHelper {
     }
 
     public void init(Context context){
-        this.context = context;
-        preferences = this.context.getSharedPreferences("tokenPref", Context.MODE_PRIVATE);
+        preferences = context.getSharedPreferences("tokenPref", Context.MODE_PRIVATE);
     }
 
     public void putToken(String token){

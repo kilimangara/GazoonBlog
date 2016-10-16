@@ -64,7 +64,7 @@ public class RequestLoader extends AsyncTaskLoader<User> {
         return thisUser;
     }
 
-    public User logIn(){
+    private User logIn(){
         Call<Object> call = intf.auth(mapJson);
         Map<String, Object> tokenMap;
         User thisUser = null;

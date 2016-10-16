@@ -14,7 +14,6 @@ import java.util.Map;
 
 import okhttp3.MultipartBody;
 import retrofit2.Call;
-import retrofit2.http.Body;
 import retrofit2.http.DELETE;
 import retrofit2.http.FieldMap;
 import retrofit2.http.FormUrlEncoded;
@@ -26,6 +25,7 @@ import retrofit2.http.POST;
 import retrofit2.http.Part;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
+import rx.Observable;
 
 
 public interface RestService {
@@ -57,9 +57,9 @@ public interface RestService {
     @PATCH("posts/{id}/")
     Call<Post> patchPost(@Path("id") int id,@Header("Authorization") String auth, @FieldMap Map<String, Object> post );
     @GET("posts/")
-    Call<Posts> getPosts (@Header("Authorization") String auth, @Query("query") String query, @Query("offset") int page);
+    Observable<Posts> getPosts (@Header("Authorization") String auth, @Query("query") String query, @Query("offset") int page);
     @GET("posts/")
-    Call<Posts> getPosts (@Header("Authorization") String auth, @Query("offset") int page);
+    Observable<Posts> getPosts (@Header("Authorization") String auth, @Query("offset") int page);
     @POST("posts/{id}/")
     Call<Post> publishPost(@Path("id") int id, @Header("Authorization") String auth);
     @FormUrlEncoded
