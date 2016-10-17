@@ -31,11 +31,12 @@ public class ClosePostsFragment extends Fragment {
     TextView tvText;
     TextView tvAuthor;
     ImageView imgPost;
+    public OnFragmentCreatedListener listener;
     public Post post;
     Commentss comments;
     private Observable<Commentss> commentssObservable;
-    interface OnObservableCreated{
-
+    public interface OnFragmentCreatedListener{
+            void fragmentCreated();
     }
 
     public ClosePostsFragment(){
@@ -45,6 +46,21 @@ public class ClosePostsFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
+        setCommentssObservable(Observable.defer(new Func0<Observable<Commentss>>() {
+            @Override
+            public Observable<Commentss> call() {
+                return MainActivity.apiFactory.getService().getPostComments(post.getId(), MainActivity.preferenceHelper.getToken()).subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .cache();
+            }
+        }));
+        listener = (OnFragmentCreatedListener) getContext();
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        listener = null;
     }
 
     @Override
@@ -88,7 +104,7 @@ public class ClosePostsFragment extends Fragment {
                 comments = commentss;
             }
         });
-
+        listener.fragmentCreated();
         return v;
     }
     public int getCommentNumber(){
@@ -110,14 +126,6 @@ public class ClosePostsFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        setCommentssObservable(Observable.defer(new Func0<Observable<Commentss>>() {
-            @Override
-            public Observable<Commentss> call() {
-                return MainActivity.apiFactory.getService().getPostComments(post.getId(), MainActivity.preferenceHelper.getToken()).subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .cache();
-            }
-        }));
     }
 
 }
