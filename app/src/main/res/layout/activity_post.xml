@@ -6,7 +6,13 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
     tools:context="com.example.asus.test_rest_client.PostActivity">
+    <android.support.v4.view.ViewPager
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/post_pager"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
+    </android.support.v4.view.ViewPager>
     <android.support.design.widget.AppBarLayout
         android:id="@+id/app_bar_posts"
         android:layout_width="match_parent"
@@ -21,7 +27,6 @@
                 app:layout_scrollFlags="enterAlways"
                 app:popupTheme="@style/AppTheme.PopupOverlay" />
     </android.support.design.widget.AppBarLayout>
-    <include layout="@layout/content_post"/>
 
     <RelativeLayout
         android:layout_width="match_parent"

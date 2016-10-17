@@ -35,18 +35,20 @@ import retrofit2.Response;
 
 public class PostCommentsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     List<Comments> list;
-    Context ctx;
     RestService intf;
+    int numberOfCom;
     AddingRePost listener;
-    Animation anim;
+    int idOfPost;
     Dialog dialog;
      public interface AddingRePost{
         void RePostAdded(String name,Integer id);
     }
 
 
-    public PostCommentsAdapter(PostCommentsActivity context){
+    public PostCommentsAdapter(PostCommentsActivity context, int numb, int idOfPost){
         intf= MainActivity.retrofit.create(RestService.class);
+        numberOfCom = numb;
+        this.idOfPost = idOfPost;
         list = new ArrayList<>();
         listener = context;
         dialog = new Dialog(context,R.style.Dialog);
@@ -55,7 +57,7 @@ public class PostCommentsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         dialog.show();
 
-        Call<Commentss> call= intf.getPostAllComments( PostActivity.post.getId(), MainActivity.preferenceHelper.getToken(),1000);
+        Call<Commentss> call= intf.getPostAllComments( idOfPost, MainActivity.preferenceHelper.getToken(),1000);
         call.enqueue(new Callback<Commentss>() {
             @Override
             public void onResponse(Call<Commentss> call, Response<Commentss> response) {
@@ -125,7 +127,7 @@ public class PostCommentsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     public void refresh(){
         dialog.show();
         list = new ArrayList<>();
-        Call<Commentss> call= intf.getPostAllComments( PostActivity.post.getId(), MainActivity.preferenceHelper.getToken(),1000);
+        Call<Commentss> call= intf.getPostAllComments( idOfPost, MainActivity.preferenceHelper.getToken(),1000);
         call.enqueue(new Callback<Commentss>() {
             @Override
             public void onResponse(Call<Commentss> call, Response<Commentss> response) {

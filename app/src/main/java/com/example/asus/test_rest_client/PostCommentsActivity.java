@@ -34,6 +34,7 @@ public class PostCommentsActivity extends AppCompatActivity implements PostComme
     private TextView sendBut;
     private EditText commentText;
     private ImageView imgRepost;
+    private int numberComm;
     Dialog dialog;
 
     @Override
@@ -43,7 +44,8 @@ public class PostCommentsActivity extends AppCompatActivity implements PostComme
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp);
-        final PostCommentsAdapter adapter = new PostCommentsAdapter(PostCommentsActivity.this);
+        numberComm = getIntent().getIntExtra("numb",0);
+        final PostCommentsAdapter adapter = new PostCommentsAdapter(PostCommentsActivity.this, numberComm, getIntent().getIntExtra("ID",0));
         intf = MainActivity.retrofit.create(RestService.class);
         idOfRepost= null;
         rePostName = (TextView) findViewById(R.id.repost_author);
@@ -60,7 +62,7 @@ public class PostCommentsActivity extends AppCompatActivity implements PostComme
                     if (idOfRepost != null) {
                         map.put("to", idOfRepost);
                     }
-                    intf.addComment(PostActivity.post.getId(), MainActivity.preferenceHelper.getToken(), map).enqueue(new Callback<Comments>() {
+                    intf.addComment(getIntent().getIntExtra("ID",0), MainActivity.preferenceHelper.getToken(), map).enqueue(new Callback<Comments>() {
                         @Override
                         public void onResponse(Call<Comments> call, Response<Comments> response) {
 

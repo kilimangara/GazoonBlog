@@ -8,9 +8,7 @@ import com.example.asus.test_rest_client.fragments.NotesFragment;
 import com.example.asus.test_rest_client.fragments.PostsFragment;
 import com.example.asus.test_rest_client.fragments.UserFragment;
 
-/**
- * Created by Asus on 12.09.2016.
- */
+
 public class ViewPagerAdapter extends FragmentStatePagerAdapter {
 
 

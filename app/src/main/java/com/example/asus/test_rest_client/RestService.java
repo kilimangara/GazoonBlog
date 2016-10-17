@@ -66,7 +66,7 @@ public interface RestService {
     @POST("posts/")
     Call<Post> savePostOnServer(@FieldMap Map<String, Object> post, @Header("Authorization") String auth);
     @GET("posts/{id}/comments/")
-    Call<Commentss> getPostComments(@Path("id") int id,@Header("Authorization") String auth );
+    Observable<Commentss> getPostComments(@Path("id") int id,@Header("Authorization") String auth );
     @GET("posts/{id}/comments/")
     Call<Commentss> getPostAllComments(@Path("id") int id,@Header("Authorization") String auth,@Query("limit") int limit );
     @FormUrlEncoded
