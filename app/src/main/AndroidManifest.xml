@@ -31,7 +31,7 @@
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:label="@string/title_activity_user_settings"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar"
+
             android:windowSoftInputMode="adjustPan|stateHidden" />
         <activity
             android:name=".PostActivity"
@@ -41,8 +41,8 @@
         <activity
             android:name=".PostCommentsActivity"
             android:label="@string/title_activity_post_comments"
-            android:screenOrientation="portrait"
             android:parentActivityName=".PostActivity"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -52,8 +52,9 @@
             android:name=".PostAddActivity"
             android:label="@string/add_post_activity"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustPan"
-            android:theme="@style/AppTheme.NoActionBar"/>
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="adjustPan" />
+
     </application>
 
 </manifest>

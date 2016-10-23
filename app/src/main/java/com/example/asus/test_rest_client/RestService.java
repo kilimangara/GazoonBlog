@@ -41,14 +41,14 @@ public interface RestService {
     @PATCH("users/{id}/")
     Call<User> patchOwnInfo(@Path("id") int id, @Header("Authorization") String auth, @FieldMap Map<String, Object> user);
     @GET("users/{id}/comments/")
-    Call<OwnComments> getComments(@Path("id") int id, @Header("Authorization") String auth);
+    Observable<OwnComments> getComments(@Path("id") int id, @Header("Authorization") String auth);
     @GET("users/{id}/posts/")
-    Call<UserPosts> getUserPosts(@Path("id") int id, @Header("Authorization") String auth, @Query("limit") int limit);
+    Observable<UserPosts> getUserPosts(@Path("id") int id, @Header("Authorization") String auth, @Query("limit") int limit);
 
     @GET("users/")
-    Call<Users> getUsers(@Header("Authorization") String auth,@Query("offset") int page, @Query("limit") int limit);
+    Observable<Users> getUsers(@Header("Authorization") String auth,@Query("offset") int page, @Query("limit") int limit);
     @GET("users/")
-    Call<Users> getUsers (@Header("Authorization") String auth, @Query("query") String query, @Query("offset") int page);
+    Observable<Users> getUsers (@Header("Authorization") String auth, @Query("query") String query, @Query("offset") int page);
 
 
     @DELETE("posts/{id}/")

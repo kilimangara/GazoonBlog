@@ -1,8 +1,6 @@
 package com.example.asus.test_rest_client.serializers;
 
-import android.Manifest;
 import android.app.Dialog;
-import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -10,13 +8,11 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.Snackbar;
-import android.support.v13.app.FragmentCompat;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -26,22 +22,21 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.AlphaAnimation;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.ListView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.example.asus.test_rest_client.MainActivity;
 import com.example.asus.test_rest_client.R;
 import com.example.asus.test_rest_client.RestService;
-import com.example.asus.test_rest_client.adapter.CommentsAdapter;
 import com.example.asus.test_rest_client.adapter.UserPostsAdapter;
 import com.example.asus.test_rest_client.model.Avatar;
 import com.example.asus.test_rest_client.model.User;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -55,35 +50,44 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class UserSettings extends AppCompatActivity{
+public class UserSettings extends AppCompatActivity implements AppBarLayout.OnOffsetChangedListener{
 
+    private static final float PERCENTAGE_TO_SHOW_TITLE_AT_TOOLBAR  = 0.9f;
+    private static final float PERCENTAGE_TO_HIDE_TITLE_DETAILS     = 0.3f;
+    private static final int ALPHA_ANIMATIONS_DURATION              = 200;
+
+    private boolean mIsTheTitleVisible          = false;
+    private boolean mIsTheTitleContainerVisible = true;
+    private boolean isOwnAcc;
 
     private CircleImageView avatarView;
-    private ImageView imageView;
-    private EditText edName;
+    private TextView edName;
     private NestedScrollView scrollView;
-    private EditText edAbout;
-    private Button button;
+    private TextView edAbout;
     private Dialog dialog;
     private boolean isChanged;
     private RestService intf;
     private File imgfile;
     public static final int PICK_IMAGE = 1;
-    public static final String IMAGE_NAME= "Avatar.png";
+    private TextView textviewTitle;
+    private LinearLayout linearlayoutTitle;
+    private User userInfo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_settings);
+        userInfo = MainActivity.gson.fromJson(getIntent().getStringExtra("User"), User.class);
+        isOwnAcc = userInfo.getId().equals(MainActivity.user.getId());
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar1);
+        toolbar.setTitle("");
         isChanged = false;
-        imageView = (ImageView) findViewById(R.id.settings_imgView);
+        AppBarLayout appBarLayout = (AppBarLayout) findViewById(R.id.app_bar1);
         avatarView = (CircleImageView) findViewById(R.id.civ_user_avatar);
-        button = (Button) findViewById(R.id.user_info_apply);
         scrollView = (NestedScrollView) findViewById(R.id.user_activity_container);
-        CollapsingToolbarLayout collapsingToolbarLayout  = (CollapsingToolbarLayout) findViewById(R.id.toolbar_layout);
-        collapsingToolbarLayout.setTitle("Settings");
-        setSupportActionBar(toolbar);
+        linearlayoutTitle = (LinearLayout) findViewById(R.id.linearlayout_title);
+        textviewTitle = (TextView) findViewById(R.id.textview_title);
+      //  setSupportActionBar(toolbar);
         dialog = new Dialog(this, R.style.Dialog);
         dialog.setContentView(R.layout.dialog_model);
         dialog.setCancelable(false);
@@ -95,24 +99,21 @@ public class UserSettings extends AppCompatActivity{
                 onBackPressed();
             }
         });
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                loadUser();
-            }
-        });
-        avatarView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent photoPicker = new Intent(Intent.ACTION_PICK);
-                photoPicker.setType("image/*");
-                dialog.show();
-                startActivityForResult(photoPicker, PICK_IMAGE);
-            }
-        });
-        edName = (EditText) findViewById(R.id.user_name);
-        edAbout = (EditText) findViewById(R.id.user_about_me);
-        TextWatcher textWatcher= new TextWatcher() {
+        appBarLayout.addOnOffsetChangedListener(this);
+        if(isOwnAcc) {
+            avatarView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent photoPicker = new Intent(Intent.ACTION_PICK);
+                    photoPicker.setType("image/*");
+                    dialog.show();
+                    startActivityForResult(photoPicker, PICK_IMAGE);
+                }
+            });
+        }
+        edName = (TextView) findViewById(R.id.user_name1);
+        edAbout = (TextView) findViewById(R.id.user_about_me);
+     /*   TextWatcher textWatcher= new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
@@ -129,22 +130,24 @@ public class UserSettings extends AppCompatActivity{
             public void afterTextChanged(Editable s) {
 
             }
-        };
-        edName.setText(MainActivity.user.getName());
-        if(MainActivity.user.getAboutMe()!=null){
-            edAbout.setText(MainActivity.user.getAboutMe());
+        };*/
+        edName.setText(userInfo.getName());
+        textviewTitle.setText(userInfo.getName());
+        if(userInfo.getName().length() == 0) {
+            edName.setText("Noname pidr");
+            textviewTitle.setText("Noname pidr");
         }
-        edName.addTextChangedListener(textWatcher);
-        edAbout.addTextChangedListener(textWatcher
-        );
-        if(MainActivity.user.getAvatar() != null) {
-            MainActivity.imageLoader.displayImage(MainActivity.user.getAvatar().getMedium().getUrl(), avatarView);
+        if(userInfo.getAboutMe().length()!=0){
+            edAbout.setText(userInfo.getAboutMe());
         }
-
+        if(userInfo.getAvatar() != null) {
+            MainActivity.imageLoader.displayImage(userInfo.getAvatar().getMedium().getUrl(), avatarView);
+        }
+        startAlphaAnimation(textviewTitle, 0, View.INVISIBLE);
         RecyclerView listView= (RecyclerView) findViewById(R.id.user_posts);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
         listView.setLayoutManager(layoutManager);
-        UserPostsAdapter adapter = new UserPostsAdapter(this);
+        UserPostsAdapter adapter = new UserPostsAdapter(this, userInfo);
         listView.setAdapter(adapter);
     }
 
@@ -172,7 +175,6 @@ public class UserSettings extends AppCompatActivity{
                         avatarView.setImageBitmap(img);
 
                         imgfile = new File(getRealPathFromURI(uri));
-                        button.setEnabled(true);
                         isChanged = true;
                         dialog.dismiss();
 
@@ -199,14 +201,6 @@ public class UserSettings extends AppCompatActivity{
                             MainActivity.user.setAvatar(response.body());
                             map.put("avatar", response.body().getId());
                         }
-                        if(edAbout.getText().toString().length() != 0) {
-                            MainActivity.user.setAboutMe(edAbout.getText().toString());
-                            map.put("about_me",edAbout.getText().toString());
-                        }
-                        if(edName.getText().toString().length() != 0){
-                            MainActivity.user.setName(edName.getText().toString());
-                            map.put("name",edName.getText().toString());
-                        }
                         Call<User> userCall = intf.patchOwnInfo(MainActivity.user.getId(), MainActivity.preferenceHelper.getToken(), map);
                         userCall.enqueue(new Callback<User>() {
                             @Override
@@ -214,7 +208,6 @@ public class UserSettings extends AppCompatActivity{
                                 Snackbar.make(scrollView, "Information applied", Snackbar.LENGTH_LONG).show();
                                 MainActivity.preferenceHelper.putUser(MainActivity.user);
                                 dialog.dismiss();
-                                button.setEnabled(false);
                             }
 
                             @Override
@@ -235,7 +228,7 @@ public class UserSettings extends AppCompatActivity{
 
                 });
         }
-        else {
+       /* else {
             if (edAbout.getText().toString().length() != 0) {
                 MainActivity.user.setAboutMe(edAbout.getText().toString());
                 map.put("about_me",edAbout.getText().toString());
@@ -260,7 +253,60 @@ public class UserSettings extends AppCompatActivity{
                     Log.d("mytags", t.getMessage());
                 }
             });
+        }*/
+    }
+
+    @Override
+    public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
+
+        int maxScroll = appBarLayout.getTotalScrollRange();
+        float percentage = (float) Math.abs(verticalOffset) / (float) maxScroll;
+
+        handleAlphaOnTitle(percentage);
+        handleToolbarTitleVisibility(percentage);
+    }
+
+
+    private void handleToolbarTitleVisibility(float percentage) {
+        if (percentage >= PERCENTAGE_TO_SHOW_TITLE_AT_TOOLBAR) {
+
+            if(!mIsTheTitleVisible) {
+                startAlphaAnimation(textviewTitle, ALPHA_ANIMATIONS_DURATION, View.VISIBLE);
+                mIsTheTitleVisible = true;
+            }
+
+        } else {
+
+            if (mIsTheTitleVisible) {
+                startAlphaAnimation(textviewTitle, ALPHA_ANIMATIONS_DURATION, View.INVISIBLE);
+                mIsTheTitleVisible = false;
+            }
         }
     }
 
+    private void handleAlphaOnTitle(float percentage) {
+        if (percentage >= PERCENTAGE_TO_HIDE_TITLE_DETAILS) {
+            if(mIsTheTitleContainerVisible) {
+                startAlphaAnimation(linearlayoutTitle, ALPHA_ANIMATIONS_DURATION, View.INVISIBLE);
+                mIsTheTitleContainerVisible = false;
+            }
+
+        } else {
+
+            if (!mIsTheTitleContainerVisible) {
+                startAlphaAnimation(linearlayoutTitle, ALPHA_ANIMATIONS_DURATION, View.VISIBLE);
+                mIsTheTitleContainerVisible = true;
+            }
+        }
+    }
+
+    public static void startAlphaAnimation (View v, long duration, int visibility) {
+        AlphaAnimation alphaAnimation = (visibility == View.VISIBLE)
+                ? new AlphaAnimation(0f, 1f)
+                : new AlphaAnimation(1f, 0f);
+
+        alphaAnimation.setDuration(duration);
+        alphaAnimation.setFillAfter(true);
+        v.startAnimation(alphaAnimation);
+    }
 }

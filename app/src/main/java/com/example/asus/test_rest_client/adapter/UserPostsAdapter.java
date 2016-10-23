@@ -1,12 +1,8 @@
 package com.example.asus.test_rest_client.adapter;
 
-import android.app.Dialog;
 import android.content.Context;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,38 +10,25 @@ import android.widget.TextView;
 
 import com.example.asus.test_rest_client.MainActivity;
 import com.example.asus.test_rest_client.R;
-import com.example.asus.test_rest_client.RestService;
 import com.example.asus.test_rest_client.Utils;
-import com.example.asus.test_rest_client.huyznaet.PreferenceHelper;
-import com.example.asus.test_rest_client.model.Post;
-import com.example.asus.test_rest_client.model.Posts;
+import com.example.asus.test_rest_client.model.User;
 import com.example.asus.test_rest_client.model.UserPost;
 import com.example.asus.test_rest_client.model.UserPosts;
+import com.example.asus.test_rest_client.retrofitRxSingleTon.ApiFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
+import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
-/**
- * Created by Asus on 04.10.2016.
- */
 public class UserPostsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-    static public List<UserPost> results;
-    RestService intf ;
-    private int page;
-    Context ctx;
-    private boolean hasEnded;
-    Dialog dialog;
+    private List<UserPost> results;
+    private User idOfUser;
 
-    public UserPostsAdapter(Context context){
-        intf = MainActivity.retrofit.create(RestService.class);
-        dialog = new Dialog(context, R.style.Dialog);
-        dialog.setContentView(R.layout.dialog_model);
-        dialog.setCancelable(false);
-        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+    public UserPostsAdapter(Context context, User idOfUser){
+        this.idOfUser = idOfUser;
         refreshPage();
     }
 
@@ -66,7 +49,7 @@ public class UserPostsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         holder.itemView.setEnabled(true);
         final PostsViewHolder postHolder= (PostsViewHolder) holder;
         View itemView = holder.itemView;
-      /*  if(position == getItemCount() -1 && !hasEnded){
+        /*if(position == getItemCount() -1 && !hasEnded){
             getPage();
         }*/
         itemView.setVisibility(View.VISIBLE);
@@ -77,8 +60,8 @@ public class UserPostsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         else {
             postHolder.dateView.setText(Utils.getFullDate(post.getPublishedAt()));
         }
-        postHolder.authorView.setText(MainActivity.user.getName());
-        postHolder.itemView.setOnClickListener(new View.OnClickListener() {
+        postHolder.authorView.setText(idOfUser.getName());
+       /* postHolder.itemView.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
@@ -101,7 +84,7 @@ public class UserPostsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                     }
                 });
             }
-        });
+        });*/
     }
 
     @Override
@@ -122,8 +105,8 @@ public class UserPostsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         }
 
     }
-    public void getPage(){
-        Call<UserPosts> callPosts = intf.getUserPosts(MainActivity.user.getId(),MainActivity.preferenceHelper.getToken(), 50);
+    private void getPage(){
+        /*Call<UserPosts> callPosts = intf.getUserPosts(MainActivity.user.getId(),MainActivity.preferenceHelper.getToken(), 50);
         callPosts.enqueue(new Callback<UserPosts>() {
             @Override
             public void onResponse(Call<UserPosts> call, Response<UserPosts> response) {
@@ -141,12 +124,33 @@ public class UserPostsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             public void onFailure(Call<UserPosts> call, Throwable t) {
 
             }
-        });
-        page++;
+        });*/
+
+        ApiFactory.getInstance().getService().getUserPosts(idOfUser.getId(), MainActivity.preferenceHelper.getToken(),50)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe(new Subscriber<UserPosts>() {
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onNext(UserPosts userPosts) {
+                            if(userPosts.getCount() != null){
+                                results.addAll(userPosts.getResults());
+                                notifyDataSetChanged();
+                            }
+                    }
+                });
+        //page++;
     }
-    public void refreshPage(){
-        page = 0;
-        hasEnded = false;
+    private void refreshPage(){
         results = new ArrayList<>();
         getPage();
     }

@@ -8,4 +8,8 @@
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="app_bar_height">180dp</dimen>
     <dimen name="text_margin">16dp</dimen>
+    n>
+    <dimen name="image_width">110dp</dimen>
+    <dimen name="image_small_width">32dp</dimen>
+
 </resources>

@@ -19,6 +19,7 @@ import com.example.asus.test_rest_client.model.Post;
 import com.example.asus.test_rest_client.model.Posts;
 import com.example.asus.test_rest_client.model.UserPost;
 import com.example.asus.test_rest_client.model.UserPosts;
+import com.example.asus.test_rest_client.retrofitRxSingleTon.ApiFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +27,10 @@ import java.util.List;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Func1;
+import rx.schedulers.Schedulers;
 
 
 public class NotesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
@@ -97,8 +102,42 @@ public class NotesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     }
     public void refreshPage(){
         postsList = new ArrayList<>();
+        notifyDataSetChanged();
         Log.d("mytags", "trying to refresh notes");
-        intf.getUserPosts(MainActivity.user.getId(), MainActivity.preferenceHelper.getToken(), 100).enqueue(new Callback<UserPosts>() {
+        ApiFactory.getInstance().getService().getUserPosts(MainActivity.user.getId(), MainActivity.preferenceHelper.getToken(), 50)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .map(new Func1<UserPosts, List<UserPost>>() {
+                    @Override
+                    public List<UserPost> call(UserPosts userPosts) {
+                        return userPosts.getResults();
+                    }
+                }).subscribe(new Subscriber<List<UserPost>>() {
+            @Override
+            public void onCompleted() {
+
+            }
+
+            @Override
+            public void onError(Throwable e) {
+
+            }
+
+            @Override
+            public void onNext(List<UserPost> userPosts) {
+                int i=0;
+                for( UserPost post:userPosts){
+                    if(post.getPublishedAt() == null){
+                        postsList.add(post);
+                        notifyItemInserted(i);
+                        ++i;
+                    }
+                }
+            }
+        });
+
+
+        /*intf.getUserPosts(MainActivity.user.getId(), MainActivity.preferenceHelper.getToken(), 100).enqueue(new Callback<UserPosts>() {
             @Override
             public void onResponse(Call<UserPosts> call, Response<UserPosts> response) {
                 Log.d("mytags","Posts " + response.body().getResults().toString());
@@ -117,7 +156,7 @@ public class NotesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                 Log.d("mytags", t.getMessage());
                 listener.postsLoad();
             }
-        });
+        });*/
     }
 
     public void removeItem(int location){

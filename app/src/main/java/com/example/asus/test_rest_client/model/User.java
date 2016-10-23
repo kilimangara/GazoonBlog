@@ -28,6 +28,24 @@ public class User {
     @SerializedName("avatar")
     @Expose
     private Avatar avatar;
+    private Integer commentsNumber;
+    private Integer postsNumber;
+
+    public Integer getCommentsNumber() {
+        return commentsNumber;
+    }
+
+    public void setCommentsNumber(Integer commentsNumber) {
+        this.commentsNumber = commentsNumber;
+    }
+
+    public Integer getPostsNumber() {
+        return postsNumber;
+    }
+
+    public void setPostsNumber(Integer postsNumber) {
+        this.postsNumber = postsNumber;
+    }
 
     /**
      * 

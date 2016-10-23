@@ -30,6 +30,7 @@ import android.widget.TextView;
 import com.example.asus.test_rest_client.adapter.ViewPagerAdapter;
 import com.example.asus.test_rest_client.fragments.NotesFragment;
 import com.example.asus.test_rest_client.fragments.PostsFragment;
+import com.example.asus.test_rest_client.fragments.UserFragment;
 import com.example.asus.test_rest_client.huyznaet.PreferenceHelper;
 import com.example.asus.test_rest_client.loaderManager.RequestLoader;
 import com.example.asus.test_rest_client.model.User;
@@ -82,6 +83,7 @@ public class MainActivity extends AppCompatActivity
     public TabLayout tabLayout;
     public PostsFragment postsFragment;
     public NotesFragment notesFragment;
+    public UserFragment userFragment;
     public ViewPager viewPager;
     public TextView tvEmail;
     public TextView tvName;
@@ -187,10 +189,28 @@ public class MainActivity extends AppCompatActivity
         });
         postsFragment= (PostsFragment) adapter.getItem(ViewPagerAdapter.POSTS_FRAGMENT);
         notesFragment = (NotesFragment) adapter.getItem(ViewPagerAdapter.NOTES_FRAGMENT);
+        userFragment = (UserFragment) adapter.getItem(ViewPagerAdapter.USERS_FRAGMENT);
+        searchView.setOnCloseListener(new SearchView.OnCloseListener() {
+            @Override
+            public boolean onClose() {
+                if(searchView.getQuery().length() == 0){
+                    postsFragment.adapter.refreshPage();
+                    userFragment.adapter.refreshPage();
+                }
+                return false;
+            }
+        });
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                postsFragment.adapter.findPosts(query);
+                if(query.length() == 0){
+                    postsFragment.adapter.refreshPage();
+                    userFragment.adapter.refreshPage();
+                }
+                else {
+                    postsFragment.adapter.findPosts(query);
+                    userFragment.adapter.findUsers(query);
+                }
                 return false;
             }
 
@@ -285,6 +305,7 @@ public class MainActivity extends AppCompatActivity
 
         }else if (id == R.id.nav_user) {
             Intent intent = new Intent(MainActivity.this, UserSettings.class);
+            intent.putExtra("User", gson.toJson(MainActivity.user));
             startActivity(intent);
             overridePendingTransition(R.anim.activity_down_up_enter, R.anim.activity_down_up_close_enter);
 

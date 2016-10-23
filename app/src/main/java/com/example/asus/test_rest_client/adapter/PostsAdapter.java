@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.example.asus.test_rest_client.AnimationUtils;
 import com.example.asus.test_rest_client.MainActivity;
 import com.example.asus.test_rest_client.PostActivity;
 import com.example.asus.test_rest_client.R;
@@ -41,9 +42,9 @@ import rx.schedulers.Schedulers;
 public class PostsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     static public List<Post> results;
     private PostsFragment fragment;
-    private RestService intf ;
     private String query;
     private int page;
+    private int previousPosition;
     private boolean hasEnded;
     private OnPostsLoadFinished listener;
 
@@ -54,8 +55,12 @@ public class PostsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     public PostsAdapter(PostsFragment postsFragment){
         fragment = postsFragment;
         listener = fragment;
-        intf = MainActivity.retrofit.create(RestService.class);
-        refreshPage();
+        page = 0;
+        hasEnded = false;
+        previousPosition=0;
+        results = new ArrayList<>();
+        query ="";
+        getPage(query);
     }
 
 
@@ -71,7 +76,7 @@ public class PostsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     }
 
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         final Post post = results.get(position);
         holder.itemView.setEnabled(true);
         final PostsViewHolder postHolder= (PostsViewHolder) holder;
@@ -83,6 +88,15 @@ public class PostsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         postHolder.titleView.setText(post.getTitle());
         postHolder.dateView.setText(Utils.getFullDate(post.getPublishedAt()));
         postHolder.authorView.setText(post.getAuthor().getName());
+            if (position > previousPosition) {
+                AnimationUtils.animateCardView(postHolder, true);
+
+            }
+            if(position< previousPosition) {
+                AnimationUtils.animateCardView(postHolder, false);
+
+            }
+        previousPosition= position;
         postHolder.cardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -115,18 +129,17 @@ public class PostsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
                     @Override
                     public void onError(Throwable e) {
-                        Log.d("mytags", e.getMessage());
-                        Log.d("mytags", MainActivity.preferenceHelper.getToken());
                         Snackbar.make(fragment.v, R.string.snackbar_error, Snackbar.LENGTH_LONG).show();
                         listener.postsLoad();
                     }
 
                     @Override
                     public void onNext(Posts post) {
-                        Log.d("mytags","OnNext");
                         if(post.getResults().size()!= 0){
+                            int size = results.size();
                             results.addAll(post.getResults());
-                            notifyDataSetChanged();
+                            Log.d("mytags",""+size+" "+results.size());
+                            notifyItemRangeInserted(size, results.size());
                         }
                         else{
                             hasEnded = true;
@@ -134,66 +147,6 @@ public class PostsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                         listener.postsLoad();
                     }
                 });
-        page++;
-    }
-    private void getPage(){
-      /*  Call<Posts> callPosts = intf.getPosts(MainActivity.preferenceHelper.getToken(), page*10);
-        Log.d("mytags",callPosts.request().toString());
-        callPosts.enqueue(new Callback<Posts>() {
-            @Override
-            public void onResponse(Call<Posts> call, Response<Posts> response) {
-                posts = response.body();
-                if(posts.getResults().size() != 0) {
-                    results.addAll(posts.getResults());
-                    notifyDataSetChanged();
-                }
-                else{
-                    hasEnded = true;
-                }
-                listener.postsLoad();
-                Log.d("mytags", "result posts "+ posts.getResults().size());
-            }
-
-            @Override
-            public void onFailure(Call<Posts> call, Throwable t) {
-                Snackbar.make(fragment.v, R.string.snackbar_error, Snackbar.LENGTH_LONG).show();
-                listener.postsLoad();
-            }
-
-
-        });
-        page++;*/
-
-
-        MainActivity.apiFactory.getService().getPosts(MainActivity.preferenceHelper.getToken(), page*10).subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Subscriber<Posts>() {
-            @Override
-            public void onCompleted() {
-                Log.d("mytags", "Completed");
-            }
-
-            @Override
-            public void onError(Throwable e) {
-                Log.d("mytags", e.getMessage());
-                Log.d("mytags", MainActivity.preferenceHelper.getToken());
-                Snackbar.make(fragment.v, R.string.snackbar_error, Snackbar.LENGTH_LONG).show();
-                listener.postsLoad();
-            }
-
-            @Override
-            public void onNext(Posts post) {
-                Log.d("mytags","OnNext");
-                if(post.getResults().size()!= 0){
-                    results.addAll(post.getResults());
-                    notifyDataSetChanged();
-                }
-                else{
-                        hasEnded = true;
-                    }
-                listener.postsLoad();
-            }
-        });
         page++;
     }
 
@@ -223,12 +176,16 @@ public class PostsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         hasEnded = false;
         results = new ArrayList<>();
         this.query =query;
+        previousPosition =0;
         getPage(query);
     }
     public void refreshPage(){
         page = 0;
         hasEnded = false;
+        previousPosition=0;
+        int size = results.size();
         results = new ArrayList<>();
+        notifyItemRangeRemoved(0, size);
         query ="";
         getPage(query);
     }

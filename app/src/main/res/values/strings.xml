@@ -128,4 +128,5 @@
     <string name="title_activity_post_add">PostAddActivity</string>
     <string name="title_activity_post_add_avtivity">PostAddAvtivity</string>
     <string name="add_post_activity">Add Post</string>
+    <string name="title_activity_test">Test</string>
 </resources>
