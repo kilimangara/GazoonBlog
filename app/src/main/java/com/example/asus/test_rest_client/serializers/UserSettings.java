@@ -1,6 +1,8 @@
 package com.example.asus.test_rest_client.serializers;
 
 import android.app.Dialog;
+import android.app.DialogFragment;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -11,24 +13,22 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.design.widget.AppBarLayout;
-import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageView;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.example.asus.test_rest_client.InfromationDialog;
 import com.example.asus.test_rest_client.MainActivity;
 import com.example.asus.test_rest_client.R;
 import com.example.asus.test_rest_client.RestService;
@@ -50,7 +50,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class UserSettings extends AppCompatActivity implements AppBarLayout.OnOffsetChangedListener{
+public class UserSettings extends AppCompatActivity implements AppBarLayout.OnOffsetChangedListener, InfromationDialog.PatchingListener{
 
     private static final float PERCENTAGE_TO_SHOW_TITLE_AT_TOOLBAR  = 0.9f;
     private static final float PERCENTAGE_TO_HIDE_TITLE_DETAILS     = 0.3f;
@@ -77,6 +77,7 @@ public class UserSettings extends AppCompatActivity implements AppBarLayout.OnOf
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_settings);
+        intf = MainActivity.retrofit.create(RestService.class);
         userInfo = MainActivity.gson.fromJson(getIntent().getStringExtra("User"), User.class);
         isOwnAcc = userInfo.getId().equals(MainActivity.user.getId());
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar1);
@@ -87,7 +88,7 @@ public class UserSettings extends AppCompatActivity implements AppBarLayout.OnOf
         scrollView = (NestedScrollView) findViewById(R.id.user_activity_container);
         linearlayoutTitle = (LinearLayout) findViewById(R.id.linearlayout_title);
         textviewTitle = (TextView) findViewById(R.id.textview_title);
-      //  setSupportActionBar(toolbar);
+        setSupportActionBar(toolbar);
         dialog = new Dialog(this, R.style.Dialog);
         dialog.setContentView(R.layout.dialog_model);
         dialog.setCancelable(false);
@@ -113,33 +114,8 @@ public class UserSettings extends AppCompatActivity implements AppBarLayout.OnOf
         }
         edName = (TextView) findViewById(R.id.user_name1);
         edAbout = (TextView) findViewById(R.id.user_about_me);
-     /*   TextWatcher textWatcher= new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if(s.length() != 0){
-                    button.setEnabled(true);
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-
-            }
-        };*/
-        edName.setText(userInfo.getName());
-        textviewTitle.setText(userInfo.getName());
-        if(userInfo.getName().length() == 0) {
-            edName.setText("Noname pidr");
-            textviewTitle.setText("Noname pidr");
-        }
-        if(userInfo.getAboutMe().length()!=0){
-            edAbout.setText(userInfo.getAboutMe());
-        }
+       resetUserInfo();
         if(userInfo.getAvatar() != null) {
             MainActivity.imageLoader.displayImage(userInfo.getAvatar().getMedium().getUrl(), avatarView);
         }
@@ -149,6 +125,36 @@ public class UserSettings extends AppCompatActivity implements AppBarLayout.OnOf
         listView.setLayoutManager(layoutManager);
         UserPostsAdapter adapter = new UserPostsAdapter(this, userInfo);
         listView.setAdapter(adapter);
+    }
+
+    public void hideKeyboard(){
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(),
+                InputMethodManager.HIDE_NOT_ALWAYS);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        if(userInfo.getId().equals(MainActivity.user.getId())){
+            getMenuInflater().inflate(R.menu.menu_user_settings, menu);
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if(id == R.id.settings_settings){
+            DialogFragment dialogFragment = new InfromationDialog();
+            Bundle bundle = new Bundle();
+            bundle.putString("Name",edName.getText().toString());
+            bundle.putString("About",edAbout.getText().toString());
+            dialogFragment.setArguments(bundle);
+            dialogFragment.show(getFragmentManager(),"Info");
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private String getRealPathFromURI(Uri contentURI) {
@@ -176,6 +182,7 @@ public class UserSettings extends AppCompatActivity implements AppBarLayout.OnOf
 
                         imgfile = new File(getRealPathFromURI(uri));
                         isChanged = true;
+                        loadUser();
                         dialog.dismiss();
 
                     } catch (IOException e) {
@@ -187,10 +194,7 @@ public class UserSettings extends AppCompatActivity implements AppBarLayout.OnOf
         dialog.dismiss();
     }
     public void loadUser(){
-        intf = MainActivity.retrofit.create(RestService.class);
         final Map<String, Object> map = new HashMap<>();
-        dialog.show();
-        if(isChanged){
             RequestBody fileBody  =RequestBody.create(MediaType.parse("multipart/form-data"), imgfile);
             MultipartBody.Part requestBody = MultipartBody.Part.createFormData("image", imgfile.getName(), fileBody );
             Call<Avatar> call= intf.loadImage(requestBody,MainActivity.preferenceHelper.getToken());
@@ -227,7 +231,6 @@ public class UserSettings extends AppCompatActivity implements AppBarLayout.OnOf
                     }
 
                 });
-        }
        /* else {
             if (edAbout.getText().toString().length() != 0) {
                 MainActivity.user.setAboutMe(edAbout.getText().toString());
@@ -308,5 +311,44 @@ public class UserSettings extends AppCompatActivity implements AppBarLayout.OnOf
         alphaAnimation.setDuration(duration);
         alphaAnimation.setFillAfter(true);
         v.startAnimation(alphaAnimation);
+    }
+
+    @Override
+    public void OnTaskAdded(HashMap<String, Object> map) {
+        //hideKeyboard();
+       // dialog.show();
+        Call<User> userCall = intf.patchOwnInfo(MainActivity.user.getId(), MainActivity.preferenceHelper.getToken(),map );
+        userCall.enqueue(new Callback<User>() {
+            @Override
+            public void onResponse(Call<User> call, Response<User> response) {
+                Snackbar.make(scrollView, "Information applied", Snackbar.LENGTH_LONG).show();
+                userInfo=response.body();
+                resetUserInfo();
+            //    dialog.dismiss();
+                MainActivity.preferenceHelper.putUser(userInfo);
+            }
+
+            @Override
+            public void onFailure(Call<User> call, Throwable t) {
+                Snackbar.make(scrollView, t.getLocalizedMessage(), Snackbar.LENGTH_LONG).show();
+              //  dialog.dismiss();
+                Log.d("mytags", t.getMessage());
+            }
+        });
+    }
+    private void resetUserInfo(){
+        edName.setText(userInfo.getName());
+        textviewTitle.setText(userInfo.getName());
+        if(userInfo.getName().length() == 0) {
+            edName.setText("Noname pidr");
+            textviewTitle.setText("Noname pidr");
+        }
+        if(userInfo.getAboutMe().length()!=0){
+            edAbout.setText(userInfo.getAboutMe());
+        }
+    }
+    @Override
+    public void OnTaskCancel() {
+        //hideKeyboard();
     }
 }

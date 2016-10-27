@@ -129,4 +129,7 @@
     <string name="title_activity_post_add_avtivity">PostAddAvtivity</string>
     <string name="add_post_activity">Add Post</string>
     <string name="title_activity_test">Test</string>
+    <string name="dialog_error">You can\'t have no name!</string>
+    <string name="dialog_cancel">Cancel</string>
+    <string name="dialog_ok">Ok</string>
 </resources>

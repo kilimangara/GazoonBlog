@@ -102,6 +102,7 @@ public class PostsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             public void onClick(View v) {
                 Intent intent = new Intent(fragment.getContext(), PostActivity.class);
                 intent.putExtra("ID", postHolder.getAdapterPosition());
+                intent.putExtra("results", MainActivity.gson.toJson(results));
                 ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(fragment.getActivity(),
                         new Pair<View, String>(postHolder.dateView, fragment.getContext().getString(R.string.transition_name_date)),
                         new Pair<View, String>(postHolder.authorView, fragment.getContext().getString(R.string.transition_name_author)),

@@ -107,9 +107,9 @@ public class MainActivity extends AppCompatActivity
         PreferenceHelper.getInstance().init(getApplicationContext());
         preferenceHelper = PreferenceHelper.getInstance();
         cacheDir = StorageUtils.getCacheDirectory(getApplicationContext());
-        options =new DisplayImageOptions.Builder().cacheOnDisk(true).showImageOnFail(R.drawable.ic_account_circle_black_24dp)
-                .showImageForEmptyUri(R.drawable.ic_account_circle_black_24dp)
-                .showImageOnLoading(R.drawable.progressbar)
+        options =new DisplayImageOptions.Builder().cacheOnDisk(true).showImageOnFail(R.drawable.avatar)
+                .showImageForEmptyUri(R.drawable.avatar)
+                .showImageOnLoading(R.drawable.avatar)
                 .resetViewBeforeLoading(true)
                 .cacheInMemory(true)
                 .cacheOnDisk(true)
@@ -261,6 +261,12 @@ public class MainActivity extends AppCompatActivity
 
         imageLoader.clearDiskCache();
         imageLoader.clearMemoryCache();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        PreferenceHelper.getInstance().putUser(MainActivity.user);
     }
 
     @Override

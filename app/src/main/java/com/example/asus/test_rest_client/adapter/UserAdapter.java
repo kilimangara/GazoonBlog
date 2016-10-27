@@ -78,7 +78,7 @@ public class UserAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             MainActivity.imageLoader.displayImage(user.getAvatar().getMedium().getUrl(), viewHolder.circleImageView);
         }
         else{
-            viewHolder.circleImageView.setImageDrawable(holder.itemView.getResources().getDrawable(R.drawable.ic_account_circle_black_24dp));
+            viewHolder.circleImageView.setImageDrawable(holder.itemView.getResources().getDrawable(R.drawable.avatar));
         }
         viewHolder.cardView.setOnClickListener(new View.OnClickListener() {
             @Override

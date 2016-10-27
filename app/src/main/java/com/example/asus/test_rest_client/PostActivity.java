@@ -41,7 +41,6 @@ public class PostActivity extends AppCompatActivity implements ClosePostsFragmen
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar3);
         setSupportActionBar(toolbar);
         post = PostsAdapter.results.get(getIntent().getIntExtra("ID",0));
-        Log.d("mytags", "prov");
         toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
@@ -49,15 +48,10 @@ public class PostActivity extends AppCompatActivity implements ClosePostsFragmen
                 onBackPressed();
             }
         });
-        Log.d("mytags", "prov");
         pager = (ViewPager) findViewById(R.id.post_pager);
-        Log.d("mytags", "prov");
         adapter = new PostPager(getSupportFragmentManager() ,PostsAdapter.results, getIntent().getIntExtra("ID",0));
-        Log.d("mytags", "prov");
         pager.setAdapter(adapter);
-        Log.d("mytags", "prov");
         pager.setCurrentItem(getIntent().getIntExtra("ID",0));
-        Log.d("mytags", "prov");
         pager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -103,19 +97,16 @@ public class PostActivity extends AppCompatActivity implements ClosePostsFragmen
         };
         tvComments.setOnClickListener(listener);
         img.setOnClickListener(listener);
-        Log.d("mytags", "PostActivityCreated");
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        Log.d("mytags", "PostActivityStarted");
     }
 
     @Override
     protected void onRestart() {
         super.onRestart();
-        Log.d("mytags", "PostActivityRestart");
         adapter.getFragment(pager.getCurrentItem()).getCommentssObservable().subscribe(new Subscriber<Commentss>() {
             @Override
             public void onCompleted() {
