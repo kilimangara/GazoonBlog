@@ -56,36 +56,6 @@ public class PostsFragment extends Fragment implements PostsAdapter.OnPostsLoadF
         return v;
     }
 
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        Log.d("mytags","OnCreate");
-
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        Log.d("mytags","OnResume");
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        Log.d("mytags","OnPause");
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        Log.d("mytags","OnAttach");
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        Log.d("mytags","OnDetach");
-    }
 
     @Override
     public void postsLoad() {

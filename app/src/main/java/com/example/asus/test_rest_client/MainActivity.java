@@ -342,27 +342,10 @@ public class MainActivity extends AppCompatActivity
             tvName.setText(user.getName());
         }
         if(user.getAvatar()!= null) {
-            imageLoader.loadImage(user.getAvatar().getMedium().getUrl(), new ImageLoadingListener() {
-                @Override
-                public void onLoadingStarted(String imageUri, View view) {
-
-                }
-
-                @Override
-                public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
-
-                }
-
-                @Override
-                public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-                   circleImageView.setImageBitmap(loadedImage);
-                }
-
-                @Override
-                public void onLoadingCancelled(String imageUri, View view) {
-
-                }
-            });
+            imageLoader.displayImage(user.getAvatar().getMedium().getUrl(), circleImageView);
+        }
+        else{
+            circleImageView.setImageDrawable(getDrawable(R.drawable.avatar));
         }
     }
 

@@ -2,6 +2,7 @@ package com.example.asus.test_rest_client.adapter;
 
 
 import android.content.Intent;
+import android.support.design.widget.Snackbar;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -15,6 +16,7 @@ import com.example.asus.test_rest_client.PostAddActivity;
 import com.example.asus.test_rest_client.R;
 import com.example.asus.test_rest_client.RestService;
 import com.example.asus.test_rest_client.fragments.NotesFragment;
+import com.example.asus.test_rest_client.huyznaet.PreferenceHelper;
 import com.example.asus.test_rest_client.model.Post;
 import com.example.asus.test_rest_client.model.Posts;
 import com.example.asus.test_rest_client.model.UserPost;
@@ -77,6 +79,25 @@ public class NotesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                 fragment.getActivity().startActivityForResult(intent,MainActivity.REQUEST_PATCH);
             }
         });
+        postHolder.cardView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                intf.deleteOPost(post.getId(), PreferenceHelper.getInstance().getToken()).enqueue(new Callback<Void>() {
+                    @Override
+                    public void onResponse(Call<Void> call, Response<Void> response) {
+                        postsList.remove(postHolder.getLayoutPosition());
+                        notifyItemRemoved(postHolder.getLayoutPosition());
+                    }
+
+                    @Override
+                    public void onFailure(Call<Void> call, Throwable t) {
+                        Snackbar.make(fragment.v,"Connection troubles", Snackbar.LENGTH_LONG);
+                    }
+                });
+
+                return true;
+            }
+        });
         postHolder.titleView.setText(post.getTitle());
         postHolder.dateView.setText(R.string.post_not_published);
         postHolder.authorView.setText(MainActivity.user.getName());
@@ -115,12 +136,13 @@ public class NotesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                 }).subscribe(new Subscriber<List<UserPost>>() {
             @Override
             public void onCompleted() {
-
+                listener.postsLoad();
             }
 
             @Override
             public void onError(Throwable e) {
-
+                Snackbar.make(fragment.v,"Connection troubles", Snackbar.LENGTH_LONG);
+                listener.postsLoad();
             }
 
             @Override

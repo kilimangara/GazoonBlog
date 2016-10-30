@@ -119,6 +119,9 @@ public class UserSettings extends AppCompatActivity implements AppBarLayout.OnOf
         if(userInfo.getAvatar() != null) {
             MainActivity.imageLoader.displayImage(userInfo.getAvatar().getMedium().getUrl(), avatarView);
         }
+        else{
+            avatarView.setImageDrawable(getDrawable(R.drawable.avatar));
+        }
         startAlphaAnimation(textviewTitle, 0, View.INVISIBLE);
         RecyclerView listView= (RecyclerView) findViewById(R.id.user_posts);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);

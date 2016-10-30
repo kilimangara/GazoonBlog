@@ -52,8 +52,7 @@ public class RequestLoader extends AsyncTaskLoader<User> {
             Call<User> registerCall = intf.register(mapJson);
             try {
                 registerCall.execute();
-                mapJson.remove("name");
-                thisUser = logIn();
+                thisUser = register();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -73,6 +72,31 @@ public class RequestLoader extends AsyncTaskLoader<User> {
             tokenMap = MainActivity.gson.fromJson(response.body().toString(), Map.class);
             String token = (String) tokenMap.get("token");
             Call<User> callus = intf.getOwnInfo((int)(double)tokenMap.get("user"), "Token " + token);
+            Response<User> response1 = callus.execute();
+            thisUser = response1.body();
+            if(!token.equals("")) {
+                MainActivity.preferenceHelper.putToken("Token ".concat((String)tokenMap.get("token")));
+                MainActivity.preferenceHelper.putBoolean(true);
+                MainActivity.preferenceHelper.putUser(thisUser);
+            }
+
+        } catch (IOException|NullPointerException e) {
+
+            e.printStackTrace();
+
+        }
+
+        return thisUser;
+    }
+    private User register(){
+        Call<Object> call = intf.auth(mapJson);
+        Map<String, Object> tokenMap;
+        User thisUser = null;
+        try {
+            Response<Object>  response = call.execute();
+            tokenMap = MainActivity.gson.fromJson(response.body().toString(), Map.class);
+            String token = (String) tokenMap.get("token");
+            Call<User> callus= intf.patchOwnInfo((int)(double)tokenMap.get("user"), "Token " + token,mapJson );
             Response<User> response1 = callus.execute();
             thisUser = response1.body();
             if(!token.equals("")) {

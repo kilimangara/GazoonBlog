@@ -194,6 +194,9 @@ public class SplashFragmentLogin extends Fragment implements LoaderManager.Loade
 
 
     }
+    private void validation(){
+
+    }
 
     @Override
     public void onLoaderReset(Loader<User> loader) {
