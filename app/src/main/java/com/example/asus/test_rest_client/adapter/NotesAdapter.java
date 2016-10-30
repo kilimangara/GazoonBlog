@@ -159,26 +159,6 @@ public class NotesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         });
 
 
-        /*intf.getUserPosts(MainActivity.user.getId(), MainActivity.preferenceHelper.getToken(), 100).enqueue(new Callback<UserPosts>() {
-            @Override
-            public void onResponse(Call<UserPosts> call, Response<UserPosts> response) {
-                Log.d("mytags","Posts " + response.body().getResults().toString());
-                for(UserPost post : response.body().getResults()){
-                    if(post.getPublishedAt() == null){
-                        postsList.add(post);
-                    }
-                }
-                Log.d("mytags", postsList.toString());
-                notifyDataSetChanged();
-                listener.postsLoad();
-            }
-
-            @Override
-            public void onFailure(Call<UserPosts> call, Throwable t) {
-                Log.d("mytags", t.getMessage());
-                listener.postsLoad();
-            }
-        });*/
     }
 
     public void removeItem(int location){

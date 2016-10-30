@@ -31,19 +31,16 @@ import rx.functions.Action1;
 import rx.functions.Func1;
 
 public class PostActivity extends AppCompatActivity implements ClosePostsFragment.OnFragmentCreatedListener {
-    //public static Post post ;
     TextView tvComments;
     ImageView img;
     ViewPager pager;
     PostPager adapter;
-   // public static Commentss commentss;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_post);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar3);
         setSupportActionBar(toolbar);
-      //  post = PostsAdapter.results.get(getIntent().getIntExtra("ID",0));
         ArrayList<Post> temp= MainActivity.gson.fromJson(getIntent().getStringExtra("results"), new TypeToken<List<Post>>(){}.getType());
         toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {

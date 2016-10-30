@@ -77,30 +77,6 @@ public class UserPostsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 context.startActivity(intent);
             }
         });
-       /* postHolder.itemView.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                dialog.show();
-                intf.deleteOPost(results.get(postHolder.getLayoutPosition()).getId(), PreferenceHelper.getInstance().getToken()).enqueue(new Callback<Void>() {
-                    @Override
-                    public void onResponse(Call<Void> call, Response<Void> response) {
-                        Log.d("mytags", ""+response.code());
-                        if(response.code() == 204) {
-                            results.remove(postHolder.getLayoutPosition());
-                            notifyItemRemoved(postHolder.getLayoutPosition());
-                        }
-
-                        dialog.dismiss();
-                    }
-
-                    @Override
-                    public void onFailure(Call<Void> call, Throwable t) {
-                        dialog.dismiss();
-                    }
-                });
-            }
-        });*/
     }
 
     @Override
