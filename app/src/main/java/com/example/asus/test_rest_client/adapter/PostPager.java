@@ -17,7 +17,7 @@ public class PostPager extends FragmentStatePagerAdapter {
 
     private List<ClosePostsFragment> fragments;
     private List<Post> posts;
-    public PostPager(FragmentManager fm, List<Post> posts, int init)  {
+    public PostPager(FragmentManager fm, List<Post> posts)  {
         super(fm);
         this.posts = posts;
         refreshAdapter();

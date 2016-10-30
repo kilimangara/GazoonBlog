@@ -40,7 +40,7 @@ import rx.schedulers.Schedulers;
 
 
 public class PostsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-    static public List<Post> results;
+    private  List<Post> results;
     private PostsFragment fragment;
     private String query;
     private int page;

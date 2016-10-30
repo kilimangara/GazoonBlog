@@ -1,6 +1,7 @@
 package com.example.asus.test_rest_client.adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -9,8 +10,10 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.example.asus.test_rest_client.MainActivity;
+import com.example.asus.test_rest_client.PostActivity;
 import com.example.asus.test_rest_client.R;
 import com.example.asus.test_rest_client.Utils;
+import com.example.asus.test_rest_client.model.Post;
 import com.example.asus.test_rest_client.model.User;
 import com.example.asus.test_rest_client.model.UserPost;
 import com.example.asus.test_rest_client.model.UserPosts;
@@ -26,9 +29,11 @@ import rx.schedulers.Schedulers;
 public class UserPostsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private List<UserPost> results;
     private User idOfUser;
+    private Context context;
 
     public UserPostsAdapter(Context context, User idOfUser){
         this.idOfUser = idOfUser;
+        this.context = context;
         refreshPage();
     }
 
@@ -61,6 +66,17 @@ public class UserPostsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             postHolder.dateView.setText(Utils.getFullDate(post.getPublishedAt()));
         }
         postHolder.authorView.setText(idOfUser.getName());
+        postHolder.cardView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent= new Intent(context, PostActivity.class);
+                List<Post> posts= new ArrayList<>();
+                posts.add(new Post(post,idOfUser));
+                intent.putExtra("results", MainActivity.gson.toJson(posts));
+                intent.putExtra("ID", 0);
+                context.startActivity(intent);
+            }
+        });
        /* postHolder.itemView.setOnClickListener(new View.OnClickListener() {
 
             @Override

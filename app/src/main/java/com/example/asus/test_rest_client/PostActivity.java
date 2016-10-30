@@ -16,7 +16,10 @@ import com.example.asus.test_rest_client.fragments.ClosePostsFragment;
 import com.example.asus.test_rest_client.huyznaet.PreferenceHelper;
 import com.example.asus.test_rest_client.model.Commentss;
 import com.example.asus.test_rest_client.model.Post;
+import com.google.gson.reflect.TypeToken;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import retrofit2.Call;
@@ -28,7 +31,7 @@ import rx.functions.Action1;
 import rx.functions.Func1;
 
 public class PostActivity extends AppCompatActivity implements ClosePostsFragment.OnFragmentCreatedListener {
-    public static Post post ;
+    //public static Post post ;
     TextView tvComments;
     ImageView img;
     ViewPager pager;
@@ -40,7 +43,8 @@ public class PostActivity extends AppCompatActivity implements ClosePostsFragmen
         setContentView(R.layout.activity_post);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar3);
         setSupportActionBar(toolbar);
-        post = PostsAdapter.results.get(getIntent().getIntExtra("ID",0));
+      //  post = PostsAdapter.results.get(getIntent().getIntExtra("ID",0));
+        ArrayList<Post> temp= MainActivity.gson.fromJson(getIntent().getStringExtra("results"), new TypeToken<List<Post>>(){}.getType());
         toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
@@ -49,7 +53,7 @@ public class PostActivity extends AppCompatActivity implements ClosePostsFragmen
             }
         });
         pager = (ViewPager) findViewById(R.id.post_pager);
-        adapter = new PostPager(getSupportFragmentManager() ,PostsAdapter.results, getIntent().getIntExtra("ID",0));
+        adapter = new PostPager(getSupportFragmentManager() ,temp);
         pager.setAdapter(adapter);
         pager.setCurrentItem(getIntent().getIntExtra("ID",0));
         pager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
