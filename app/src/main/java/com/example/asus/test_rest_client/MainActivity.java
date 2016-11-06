@@ -26,6 +26,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.asus.test_rest_client.adapter.ViewPagerAdapter;
 import com.example.asus.test_rest_client.fragments.NotesFragment;
@@ -96,6 +97,7 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle("Posts");
         Log.d("mytags", "OnCreateMain");
         user = null;
         gson = new GsonBuilder().setPrettyPrinting().create();
@@ -167,7 +169,7 @@ public class MainActivity extends AppCompatActivity
     }
     private void setUI(){
         Log.d("mytags", "UI Setted");
-        ViewPagerAdapter adapter =new ViewPagerAdapter(fragmentManager, 3);
+        final ViewPagerAdapter adapter =new ViewPagerAdapter(fragmentManager, 3);
         viewPager = (ViewPager) findViewById(R.id.view_pager);
         viewPager.setAdapter(adapter);
         viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
@@ -175,6 +177,20 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 viewPager.setCurrentItem(tab.getPosition());
+
+                switch (viewPager.getCurrentItem()){
+                    case ViewPagerAdapter.POSTS_FRAGMENT:
+                        getSupportActionBar().setTitle("Posts");
+                        break;
+                    case ViewPagerAdapter.NOTES_FRAGMENT:
+                        getSupportActionBar().setTitle("Notes");
+                        break;
+                    case ViewPagerAdapter.USERS_FRAGMENT:
+                        getSupportActionBar().setTitle("Users");
+                        break;
+                }
+
+
             }
 
             @Override
@@ -194,8 +210,17 @@ public class MainActivity extends AppCompatActivity
             @Override
             public boolean onClose() {
                 if(searchView.getQuery().length() == 0){
-                    postsFragment.adapter.refreshPage();
-                    userFragment.adapter.refreshPage();
+                    switch (viewPager.getCurrentItem()){
+                        case ViewPagerAdapter.POSTS_FRAGMENT:
+                            postsFragment.adapter.refreshPage();
+                            break;
+                        case ViewPagerAdapter.NOTES_FRAGMENT:
+                            Toast.makeText(MainActivity.this, "Хуй тебе Газон, а не поиск здесь", Toast.LENGTH_LONG).show();
+                            break;
+                        case ViewPagerAdapter.USERS_FRAGMENT:
+                            userFragment.adapter.refreshPage();
+                            break;
+                    }
                 }
                 return false;
             }
@@ -203,13 +228,18 @@ public class MainActivity extends AppCompatActivity
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                if(query.length() == 0){
-                    postsFragment.adapter.refreshPage();
-                    userFragment.adapter.refreshPage();
-                }
-                else {
-                    postsFragment.adapter.findPosts(query);
-                    userFragment.adapter.findUsers(query);
+                if(query.length() != 0){
+                    switch (viewPager.getCurrentItem()){
+                        case ViewPagerAdapter.POSTS_FRAGMENT:
+                            postsFragment.adapter.findPosts(query);
+                            break;
+                        case ViewPagerAdapter.NOTES_FRAGMENT:
+                            Toast.makeText(MainActivity.this, "Хуй тебе Газон, а не поиск здесь", Toast.LENGTH_LONG).show();
+                            break;
+                        case ViewPagerAdapter.USERS_FRAGMENT:
+                            userFragment.adapter.findUsers(query);
+                            break;
+                    }
                 }
                 return false;
             }

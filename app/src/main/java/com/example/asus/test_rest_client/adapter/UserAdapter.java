@@ -117,7 +117,7 @@ public class UserAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
 
 
-            MainActivity.apiFactory.getService().getUsers(MainActivity.preferenceHelper.getToken(), query,page*10).subscribeOn(Schedulers.io())
+            MainActivity.apiFactory.getService().getUsers(MainActivity.preferenceHelper.getToken(), query,page*10, 10).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .flatMap(new Func1<Users, Observable<User>>() {
                     @Override

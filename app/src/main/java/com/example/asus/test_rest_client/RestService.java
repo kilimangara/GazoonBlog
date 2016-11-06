@@ -48,7 +48,7 @@ public interface RestService {
     @GET("users/")
     Observable<Users> getUsers(@Header("Authorization") String auth,@Query("offset") int page, @Query("limit") int limit);
     @GET("users/")
-    Observable<Users> getUsers (@Header("Authorization") String auth, @Query("query") String query, @Query("offset") int page);
+    Observable<Users> getUsers (@Header("Authorization") String auth, @Query("query") String query, @Query("offset") int page, @Query("limit") int limit);
 
 
     @DELETE("posts/{id}/")

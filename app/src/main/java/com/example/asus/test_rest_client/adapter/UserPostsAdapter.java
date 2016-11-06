@@ -135,7 +135,11 @@ public class UserPostsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                     @Override
                     public void onNext(UserPosts userPosts) {
                             if(userPosts.getCount() != null){
-                                results.addAll(userPosts.getResults());
+                                for(UserPost post:userPosts.getResults()){
+                                    if(post.getPublishedAt()!=null) {
+                                        results.add(post);
+                                    }
+                                }
                                 notifyDataSetChanged();
                             }
                     }
