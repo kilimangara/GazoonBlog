@@ -177,7 +177,6 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 viewPager.setCurrentItem(tab.getPosition());
-
                 switch (viewPager.getCurrentItem()){
                     case ViewPagerAdapter.POSTS_FRAGMENT:
                         getSupportActionBar().setTitle("Posts");

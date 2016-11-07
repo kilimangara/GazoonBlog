@@ -18,6 +18,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.CheckedTextView;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import com.example.asus.test_rest_client.loaderManager.RequestLoader;
 import com.example.asus.test_rest_client.model.User;
@@ -34,6 +35,7 @@ public class SplashFragmentLogin extends Fragment implements LoaderManager.Loade
     OnLoadFinishListener listener;
     Animation anim;
     Bundle bnd1 ;
+    private TextView tvError;
     private boolean emailHasChars;
     private boolean passHasChars;
     private boolean forRegister;
@@ -67,6 +69,7 @@ public class SplashFragmentLogin extends Fragment implements LoaderManager.Loade
         sBut = (Button) v.findViewById(R.id.email_sign_in_button);
         edName = (EditText) v.findViewById(R.id.name);
         register = (CheckedTextView) v.findViewById(R.id.register);
+        tvError = (TextView) v.findViewById(R.id.error);
         forRegister = false;
         anim = AnimationUtils.loadAnimation(getContext(), R.anim.shake);
         bnd1 = new Bundle();
@@ -183,13 +186,16 @@ public class SplashFragmentLogin extends Fragment implements LoaderManager.Loade
 
     @Override
     public void onLoadFinished(Loader<User> loader, User data) {
+        Log.d("mytags","LOADFINISHED!! "+loader.getId());
+
         if(data !=null) {
             MainActivity.user = data;
             listener.loadFinished();
+            Log.d("mytags","norm "+loader.getId());
         }
         else{
-            tvEmail.startAnimation(anim);
-            edPass.startAnimation(anim);
+            Log.d("mytags","ne norm "+loader.getId());
+           tvError.setVisibility(View.VISIBLE);
         }
 
 

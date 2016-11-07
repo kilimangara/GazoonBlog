@@ -24,6 +24,7 @@ public class PostsFragment extends Fragment implements PostsAdapter.OnPostsLoadF
     public SwipeRefreshLayout swipeRefreshLayout;
     public  PostsAdapter adapter;
     public boolean once;
+    private RecyclerView recyclerView;
     public PostsFragment() {
         once = false;
 
@@ -39,7 +40,7 @@ public class PostsFragment extends Fragment implements PostsAdapter.OnPostsLoadF
             adapter = new PostsAdapter(this);
             once = true;
         }
-        RecyclerView recyclerView = (RecyclerView) v.findViewById(R.id.rvForPosts);
+        recyclerView = (RecyclerView) v.findViewById(R.id.rvForPosts);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity());
         swipeRefreshLayout = (SwipeRefreshLayout) v.findViewById(R.id.swipe_container);
         swipeRefreshLayout.setColorSchemeResources(android.R.color.holo_orange_dark,
@@ -56,7 +57,9 @@ public class PostsFragment extends Fragment implements PostsAdapter.OnPostsLoadF
         return v;
     }
 
-
+    public void swipeToTop(){
+        recyclerView.smoothScrollToPosition(0);
+    }
     @Override
     public void postsLoad() {
         swipeRefreshLayout.setRefreshing(false);
